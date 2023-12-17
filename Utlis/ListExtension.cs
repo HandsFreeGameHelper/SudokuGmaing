@@ -31,7 +31,8 @@ public static class ListExtension
         var res = "";
         ls?.ForEach(ts =>
         {
-            res += ts.AsPrimitive() + Environment.NewLine;
+
+            res += ts.AsPrimitive().Replace("0,]","0]") + Environment.NewLine;
         });
 
         return res;

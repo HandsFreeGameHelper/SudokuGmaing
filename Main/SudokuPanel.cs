@@ -10,34 +10,12 @@ public class Sudoku
     public  int[][] OriginPanel { get; set; } = new int[][] { };
 
     /// <summary>
-    /// 
-    /// </summary>
-    private Properties Propoty { get; set; } = new Properties();
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    public Sudoku() 
-    {
-        this.GenerateSudoku();
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="originPanel"></param>
-    public Sudoku(int[][] originPanel) 
-    {
-        this.OriginPanel = originPanel;
-        this.ResolveSudoku();
-    }
-
-    /// <summary>
     /// 调用 Generater 方法
     /// </summary>
     /// <param name="args"></param>
-    private void GenerateSudoku()
+    public void GenerateSudoku()
     {
-        this.GenerateOrResolveSudoku(this.Propoty);
+        this.GenerateOrResolveSudoku(new Properties());
     }
 
     /// <summary>  
@@ -64,9 +42,9 @@ public class Sudoku
     ///     new int[] { 0, 9, 0, 0, 0, 0, 0, 0, 6}
     /// };
     /// </summary>
-    private void ResolveSudoku() 
+    public void ResolveSudoku() 
     {
-        this.GenerateOrResolveSudoku(this.Propoty, true);
+        this.GenerateOrResolveSudoku(new Properties(), true);
     }
 
     /// <summary>
@@ -91,12 +69,13 @@ public class Sudoku
                 Console.WriteLine(Environment.NewLine);
                 Console.WriteLine("Total Taken {0}", (DateTime.Now - dateTimeStart).ToString());
                 Console.WriteLine(Environment.NewLine);
-                Console.WriteLine("Press any key to close this console.");
+                Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
                 break;
             }
             Console.WriteLine("Match Failed");
             Console.WriteLine(Environment.NewLine);
+            Thread.Sleep(1);
         }
     }
 
