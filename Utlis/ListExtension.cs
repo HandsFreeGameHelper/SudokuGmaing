@@ -7,12 +7,12 @@ public static class ListExtension
     /// </summary>
     /// <param name="ts"></param>
     /// <returns></returns>
-    public static string AsPrimitive(this List<int>? ts)
+    public static string AsPrimitive(this int[]? ts)
     {
         var res = "[";
-        ts?.ForEach(x =>
+        ts?.ToList().ForEach(x =>
         {
-            res += ts.IndexOf(x) != ts.Count - 1 ?
+            res += Array.IndexOf(ts,x) != ts.Length - 1 ?
             x.ToString() + "," :
             x.ToString();
 
@@ -26,10 +26,10 @@ public static class ListExtension
     /// </summary>
     /// <param name="ls"></param>
     /// <returns></returns>
-    public static string AsPrimitive(this List<List<int>>? ls)
+    public static string AsPrimitive(this int[][]? ls)
     {
         var res = "";
-        ls?.ForEach(ts =>
+        ls?.ToList().ForEach(ts =>
         {
 
             res += ts.AsPrimitive().Replace("0,]","0]") + Environment.NewLine;

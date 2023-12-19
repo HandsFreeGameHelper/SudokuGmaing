@@ -7,7 +7,6 @@ public static class App
 
     public static void Main() 
     {
-        GennerateSudoku();
         ResolveSudoku(2000);
     }
 
@@ -21,15 +20,15 @@ public static class App
         //var tasks = new Task[taskNum];
         Sudoku.OriginPanel = new int[][] 
         {
-            new int[] { 0, 0, 0, 7, 0, 0, 0, 0, 0},
-            new int[] { 0, 0, 5, 0, 0, 0, 0, 0, 0},
-            new int[] { 0, 0, 0, 0, 0, 0, 0, 5, 0},
-            new int[] { 0, 0, 0, 0, 2, 0, 0, 0, 0},
-            new int[] { 0, 8, 0, 0, 0, 0, 0, 0, 0},
-            new int[] { 0, 0, 0, 0, 0, 0, 0, 8, 0},
-            new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            new int[] { 0, 0, 0, 0, 1, 0, 0, 0, 0},
-            new int[] { 0, 9, 0, 0, 0, 0, 0, 0, 6}
+            new int[] { 2, 9, 1, 0, 0, 0, 0, 3, 8},
+            new int[] { 0, 4, 0, 0, 9, 8, 0, 0, 2},
+            new int[] { 6, 5, 8, 0, 0, 2, 0, 0, 9},
+            new int[] { 4, 0, 0, 0, 0, 0, 8, 9, 0},
+            new int[] { 8, 0, 0, 0, 0, 9, 0, 2, 6},
+            new int[] { 9, 0, 0, 8, 7, 0, 0, 0, 0},
+            new int[] { 1, 0, 0, 6, 0, 0, 2, 0, 4},
+            new int[] { 0, 0, 4, 0, 1, 0, 0, 0, 0},
+            new int[] { 0, 0, 0, 0, 0, 7, 0, 1, 0}
         };
         //for (int i = 0; i < taskNum; i++)
         //{

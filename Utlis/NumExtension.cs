@@ -13,7 +13,7 @@ public static class NumExtension
         var tempList = new List<int>(li);
         tempList.RemoveAll(num => intparams.Contains(num));
         if (tempList.Count == 0)
-            throw new InvalidOperationException("No available random number.");
+          return -1;
         var index = new Random().Next(0, tempList.Count);
         return tempList[index];
     }
