@@ -198,11 +198,16 @@ public class Sudoku
         }
         if (property.Panel[i][j] == 0)
         {
-          j -= 2;
-          if (j < -1)
+          if (j == 0)
           {
+            if (i == 0)
+            {
+              return false;
+            }
+            j = 8;
             i -= 1;
           }
+          j -= 2;
         }
       }
     }
@@ -210,7 +215,7 @@ public class Sudoku
   }
   private bool IsValidate(int[][] panel, int i, int j)
   {
-    return this.DistinctByBlock(panel, i % 3 * 3, i % 3 * 3 + 3, j % 3 * 3, j % 3 * 3 + 3);
+    return this.DistinctByBlock(panel, (i / 3) * 3, (i / 3) * 3 + 3, (j / 3) * 3, (j / 3) * 3 + 3);
   }
 
 
@@ -279,10 +284,14 @@ public class Sudoku
     {
       for (int j = start_col; j < end_col; j++)
       {
+        if (temp.IndexOf(panel[i][j]) != -1 && panel[i][j] != 0)
+        { 
+          return false;
+        }
         temp.Add(panel[i][j]);
       }
     }
-    return temp.Distinct().Count() == 9;
+    return true;
   }
 
   /// <summary>
