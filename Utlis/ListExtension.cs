@@ -1,4 +1,6 @@
-﻿namespace SudokuPanel.Utlis;
+﻿using static SudokuPanel.Main.Sudoku;
+
+namespace SudokuPanel.Utlis;
 
 public static class ListExtension
 {
@@ -43,28 +45,78 @@ public static class ListExtension
     /// </summary>
     /// <param name="originData"></param>
     /// <returns></returns>
-    public static int[][] CopyDataOnly(this int[][] originData)
+    public static OriginNum[][] CopyDataOnly(this int[][] originData,bool isInitData)
     {
-        var outPutData = new int[][]
+        var outPutData = new OriginNum[][]
         {
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9]
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+            new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() }
+
         };
 
         for (int i = 0; i < originData.Length; i++)
         {
             for (int j = 0; j < originData[i].Length; j++)
             {
-                outPutData[i][j] = originData[i][j];
+                outPutData[i][j].Num = originData[i][j];
+                if (isInitData&&originData[i][j] != 0)
+                {
+                  outPutData[i][j].IsOriginNum = true;
+                }
             }
         }
         return outPutData;
     }
+
+  /// <summary>
+  /// 仅复制数据不更新原棋盘
+  /// </summary>
+  /// <param name="originData"></param>
+  /// <returns></returns>
+  public static OriginNum[] CopyDataOnly(this int[] originData, bool isInitData)
+  {
+    var outPutData = new OriginNum[]
+    {
+       new(),new(),new(),new(),new(),new(),new(),new(),new()
+    };
+
+    for (int i = 0; i < originData.Length; i++)
+    {
+        outPutData[i].Num = originData[i];
+        if (isInitData&&originData[i] != 0)
+        {
+          outPutData[i].IsOriginNum = true;
+        }
+    }
+    return outPutData;
+  }
+  /// <summary>
+  /// 仅复制数据不更新原棋盘
+  /// </summary>
+  /// <param name="originData"></param>
+  /// <returns></returns>
+  public static OriginNum[] CopyDataOnly(this List<int> originData, bool isInitData)
+  {
+    var outPutData = new OriginNum[]
+    {
+       new(),new(),new(),new(),new(),new(),new(),new(),new()
+    };
+
+    for (int i = 0; i < originData.Count; i++)
+    {
+      outPutData[i].Num = originData[i];
+      if (isInitData&&originData[i] != 0)
+      {
+        outPutData[i].IsOriginNum = true;
+      }
+    }
+    return outPutData;
+  }
 }

@@ -10,6 +10,8 @@ public class Sudoku
   /// </summary>
   public int[][] OriginPanel { get; set; } = new int[][] { };
 
+  public List<OriginNum>[][] ExeceptNum { get; set; } = new List<OriginNum>[][] { };
+
   /// <summary>
   /// 调用 Generater 方法
   /// </summary>
@@ -126,7 +128,7 @@ public class Sudoku
     try
     {
       this.InitData(property);
-      property.Panel = this.OriginPanel.CopyDataOnly();
+      property.Panel = this.OriginPanel.CopyDataOnly(true);
 
       var currentProperty = property;
       this.GetOrUpDateRowsAndCols(currentProperty);
@@ -165,59 +167,113 @@ public class Sudoku
     {
       for (int j = start_col; j < end_col; j++)
       {
-        if (property.Panel[i][j] != 0)
+        if (property.Panel[i][j].Num != 0 || property.Panel[i][j].IsOriginNum)
         {
+          this.ExeceptNum[i][j].AddRange(new List<OriginNum>() { property.Panel[i][j]});
           continue;
         }
-        var temp = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        var temp = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }.CopyDataOnly(false).ToList();
         property.Rows[i].Distinct().ToList().ForEach(x =>
         {
-          temp.Remove(x);
+          if (temp.Any(a => a.Num == x))
+          {
+            temp.Remove(temp.Where(a => a.Num == x).First());
+          }
         });
         property.Cols[j].Distinct().ToList().ForEach(x =>
         {
-          temp.Remove(x);
+          if (temp.Any(a => a.Num == x))
+          {
+            temp.Remove(temp.Where(a => a.Num == x).First());
+          }
         });
-        if (temp.Count == 0)
+        this.ExeceptNum[i][j].AddRange(temp);
+      }
+    }
+    var outPutData = new List<Point>();
+    if (this.TryFindTheOnlyOne(this.ExeceptNum, out outPutData))
+    {
+      foreach (var item in outPutData)
+      {
+        property.Panel[item.X][item.Y].Num = item.Num;
+      }
+    }
+    this.GetOrUpDateRowsAndCols(property);
+    Console.WriteLine(property.Rows.AsPrimitive());
+    Console.WriteLine(Environment.NewLine);
+    return true;
+  }
+  private bool IsValidate(List<OriginNum>[][] panel, Point point)
+  {
+    return this.DistinctByBlock(panel,point.Num, (point.X / 3) * 3, (point.X / 3) * 3 + 3, (point.Y / 3) * 3, (point.Y / 3) * 3 + 3);
+  }
+
+  private bool TryFindTheOnlyOne(List<OriginNum>[][] panel,out List<Point> points) 
+  {
+    var outpoints = new List<Point>();
+    var f = new List<OriginNum>[][] 
+    {
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new List<OriginNum>[]{new(),new(),new(),new(),new(),new(),new(),new(),new() }
+    };
+    for (int i = 0; i < panel.Length; i++)
+    {
+      var a = new List<Point>();
+      var d = new List<Point>();
+      var b = new List<OriginNum>();
+      var e= new List<int>();
+      for (int j = 0; j < panel[i].Length; j++)
+      {
+        a.Add(new Point(i, j, panel[i][j]));
+        d.Add(new Point(i, j, panel[j][i]));
+        b.AddRange(panel[i][j]);
+        f[i][j] = panel[i][j];
+      }
+      foreach (var item in b) 
+      {
+        e.Add(item.Num);
+      }
+      var c = e.Where(x=>e.IndexOf(x) == e.LastIndexOf(x)).ToList();
+      foreach (var item in a)
+      {
+        c.ForEach(x =>
         {
-          return false;
-        }
-        for (int m = 0; m < temp.Count; m++)
-        {
-          property.Rows[i][j] = temp[m];
-          property.Cols[j][i] = temp[m];
-          property.Panel[i][j] = temp[m];
-          if (!IsValidate(property.Panel, i, j))
+          if (item.TempNumList.Any(a=>a.Num == x && !a.IsOriginNum))
           {
-            property.Rows[i][j] = 0;
-            property.Cols[j][i] = 0;
-            property.Panel[i][j] = 0;
-            continue;
+            outpoints.Add(new Point(item.X, item.Y, x));
           }
-          break;
-        }
-        if (property.Panel[i][j] == 0)
+        });
+      }
+      points = outpoints;
+      foreach (var item in outpoints)
+      {
+        if (d.Any(x => x.TempNumList.Any(a => a.Num == item.Num)))
         {
-          if (j == 0)
-          {
-            if (i == 0)
-            {
-              return false;
-            }
-            j = 8;
-            i -= 1;
-          }
-          j -= 2;
+          outpoints.Remove(item);
         }
       }
     }
+    foreach (var item in outpoints)
+    {
+      if (!IsValidate(f, item))
+      {
+        outpoints.Remove(item);
+      }
+    }
+    points = outpoints;
+    if (points.Count == 0)
+    { 
+      return false;
+    }
     return true;
   }
-  private bool IsValidate(int[][] panel, int i, int j)
-  {
-    return this.DistinctByBlock(panel, (i / 3) * 3, (i / 3) * 3 + 3, (j / 3) * 3, (j / 3) * 3 + 3);
-  }
-
 
   /// <summary>
   /// 获取或更新行和列的数据
@@ -228,8 +284,8 @@ public class Sudoku
     {
       for (int j = 0; j < 9; j++)
       {
-        property.Rows[i][j] = property.Panel[i][j];
-        property.Cols[i][j] = property.Panel[j][i];
+        property.Rows[i][j] = property.Panel[i][j].Num;
+        property.Cols[i][j] = property.Panel[j][i].Num;
       }
     }
   }
@@ -239,56 +295,69 @@ public class Sudoku
   /// </summary>
   private void InitData(Properties property)
   {
-    property.Panel = new int[][]
+    this.ExeceptNum = new List<OriginNum>[][]
     {
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9]
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()},
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()},
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()},
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()},
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()},
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()},
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()},
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()},
+      new List<OriginNum>[]{ new(),new(),new(),new(),new(),new(),new(),new(),new()}
+    };
+    property.Panel = new OriginNum[][]
+    {
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() },
+      new OriginNum[]{new(),new(),new(),new(),new(),new(),new(),new(),new() }
     };
     property.Cols = new int[][]
     {
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9]
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9]
     };
     property.Rows = new int[][]
     {
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9],
-            new int[9]
-    }; ;
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9],
+      new int[9]
+    }; 
   }
 
-  private bool DistinctByBlock(int[][] panel, int start_row, int end_row, int start_col, int end_col)
+  private bool DistinctByBlock(List<OriginNum>[][] panel, int num ,int start_row, int end_row, int start_col, int end_col)
   {
     var temp = new List<int>();
     for (int i = start_row; i < end_row; i++)
     {
       for (int j = start_col; j < end_col; j++)
       {
-        if (temp.IndexOf(panel[i][j]) != -1 && panel[i][j] != 0)
-        { 
+        panel[i][j].ForEach(x => { temp.Add(x.Num); });
+
+        if (temp.IndexOf(num) != -1)
+        {
           return false;
         }
-        temp.Add(panel[i][j]);
       }
     }
     return true;
@@ -311,6 +380,32 @@ public class Sudoku
     /// <summary>
     /// 一个包含数独面板数字的二维数组，表示数独的当前状态。
     /// </summary>
-    public int[][] Panel { get; set; } = new int[][] { };
+    public OriginNum[][] Panel { get; set; } = new OriginNum[][] { };
+  }
+
+  public class OriginNum
+  {
+    public int Num { get; set; } = 0;
+    public bool IsOriginNum { get; set; } = false;
+  }
+
+  public class Point 
+  {
+    public int X { get; set; } = -1;
+    public int Y { get; set; } = -1;
+    public int Num { get; set; } = -1;
+    public List<OriginNum> TempNumList { get; set; } =new();
+    public Point(int x, int y, List<OriginNum> tempNumList) 
+    {
+      this.X = x;
+      this.Y = y;
+      this.TempNumList = tempNumList;
+    }
+    public Point(int x, int y,int num)
+    {
+      this.X = x;
+      this.Y = y;
+      this.Num = num;
+    }
   }
 }
